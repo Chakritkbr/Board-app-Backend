@@ -4,9 +4,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { User } from './user/entities/user.entity';
-
+import { PostModule } from './post/post.module';
 import { Post } from './post/entities/post.entity';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
+import { CommentModule } from './comment/comment.module';
+import { Comment } from './comment/entities/comment.entity';
 
 @Module({
   imports: [
@@ -25,6 +28,9 @@ import { ConfigModule } from '@nestjs/config';
       synchronize: true,
     }),
     UserModule,
+    PostModule,
+    AuthModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
