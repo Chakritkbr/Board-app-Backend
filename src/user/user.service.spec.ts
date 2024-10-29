@@ -1,33 +1,31 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { UserService } from './user.service';
-import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
+import { Test, TestingModule } from '@nestjs/testing';
+import { UserController } from './user.controller';
+import { UserService } from '../user/user.service';
+import { User } from '../user/entities/user.entity';
+import { LoginDto } from './dto/login.dto';
 
-describe('UserService', () => {
-  let service: UserService;
-  let userRepository: Repository<User>;
+describe('UserController', () => {
+  let userController: UserController;
+  let userService: UserService;
 
-  const mockUserRepo = {
-    findOne: jest.fn(),
-    create: jest.fn(),
-    save: jest.fn(),
+  const mockUserService = {
+    loginOrCreate: jest.fn(),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      controllers: [UserController],
       providers: [
-        UserService,
         {
-          provide: getRepositoryToken(User),
-          useValue: mockUserRepo,
+          provide: UserService,
+          useValue: mockUserService,
         },
       ],
     }).compile();
 
-    service = module.get<UserService>(UserService);
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
+    userController = module.get<UserController>(UserController);
+    userService = module.get<UserService>(UserService);
   });
 
   afterEach(() => {
@@ -35,39 +33,20 @@ describe('UserService', () => {
   });
 
   describe('loginOrCreate', () => {
-    it('should return existing user if found', async () => {
+    it('should return a user and token', async () => {
       const username = 'testUser';
-      const existingUser = new User();
-      existingUser.id = '1';
-      existingUser.username = username;
+      const user = new User();
+      user.id = '1';
+      user.username = username;
 
-      mockUserRepo.findOne.mockResolvedValue(existingUser);
+      const loginDto: LoginDto = { user, token: 'mockToken' }; // Adjust structure according to your LoginDto
+      mockUserService.loginOrCreate.mockResolvedValue(loginDto);
 
       const createUserDto: CreateUserDto = { username };
 
-      const user = await service.loginOrCreate(createUserDto);
-      expect(user).toEqual(existingUser);
-      expect(userRepository.findOne).toHaveBeenCalledWith({
-        where: { username },
-      });
-    });
-
-    it('should create and return new user if not found', async () => {
-      const username = 'newUser';
-      mockUserRepo.findOne.mockResolvedValue(null);
-
-      const newUser = new User();
-      newUser.id = '2';
-      newUser.username = username;
-      const createUserDto: CreateUserDto = { username };
-
-      mockUserRepo.create.mockReturnValue(newUser);
-      mockUserRepo.save.mockResolvedValue(newUser);
-
-      const user = await service.loginOrCreate(createUserDto);
-      expect(user).toEqual(newUser);
-      expect(userRepository.create).toHaveBeenCalledWith({ username });
-      expect(userRepository.save).toHaveBeenCalledWith(newUser);
+      const result = await userController.loginOrCreate(createUserDto);
+      expect(result).toEqual(loginDto);
+      expect(userService.loginOrCreate).toHaveBeenCalledWith(createUserDto);
     });
   });
 });

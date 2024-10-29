@@ -8,8 +8,8 @@ import {
   OneToMany,
 } from 'typeorm';
 import { IsUUID } from 'class-validator';
-import { User } from 'src/user/entities/user.entity';
-import { Comment } from 'src/comment/entities/comment.entity';
+import { User } from '../../user/entities/user.entity';
+import { Comment } from '../../comment/entities/comment.entity';
 
 export enum PostCategory {
   History = 'History',

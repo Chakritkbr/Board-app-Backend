@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { IsUUID } from 'class-validator';
-import { Post } from 'src/post/entities/post.entity';
-import { Comment } from 'src/comment/entities/comment.entity';
+import { Post } from '../../post/entities/post.entity';
+import { Comment } from '../../comment/entities/comment.entity';
 
 @Entity()
 export class User {

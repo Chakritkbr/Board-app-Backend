@@ -7,7 +7,7 @@ import { Post } from 'src/post/entities/post.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Comment } from 'src/auth/entities/comment.entity';
+import { Comment } from 'src/comment/entities/comment.entity';
 
 @Module({
   imports: [

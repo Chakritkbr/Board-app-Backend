@@ -1,11 +1,12 @@
 import { CreateUserDto } from './dto/create-user.dto';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
-import { UserService } from './user.service';
-import { User } from './entities/user.entity';
+import { UserService } from '../user/user.service';
+import { User } from '../user/entities/user.entity';
+import { LoginDto } from './dto/login.dto';
 
 describe('UserController', () => {
-  let usercontroller: UserController;
+  let userController: UserController;
   let userService: UserService;
 
   const mockUserService = {
@@ -23,7 +24,7 @@ describe('UserController', () => {
       ],
     }).compile();
 
-    usercontroller = module.get<UserController>(UserController);
+    userController = module.get<UserController>(UserController);
     userService = module.get<UserService>(UserService);
   });
 
@@ -32,19 +33,19 @@ describe('UserController', () => {
   });
 
   describe('loginOrCreate', () => {
-    it('should return a user', async () => {
+    it('should return a user and token', async () => {
       const username = 'testUser';
       const user = new User();
-
       user.id = '1';
       user.username = username;
 
-      mockUserService.loginOrCreate.mockResolvedValue(user);
+      const loginDto: LoginDto = { user, token: 'mockToken' }; // Adjust structure according to your LoginDto
+      mockUserService.loginOrCreate.mockResolvedValue(loginDto);
 
       const createUserDto: CreateUserDto = { username };
 
-      const result = await usercontroller.loginOrCreate(createUserDto);
-      expect(result).toEqual(user);
+      const result = await userController.loginOrCreate(createUserDto);
+      expect(result).toEqual(loginDto);
       expect(userService.loginOrCreate).toHaveBeenCalledWith(createUserDto);
     });
   });
