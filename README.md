@@ -1,73 +1,113 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# Board_app_backend
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## ขั้นตอนการติดตั้ง
 
-## Description
+1. **ติดตั้ง Dependencies**: เริ่มต้นด้วยการติดตั้งไลบรารีที่จำเป็นทั้งหมด โดยรันคำสั่งต่อไปนี้ในโฟลเดอร์โปรเจค:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+   ```bash
+   npm install
+   ```
 
-## Installation
+2. **สร้างไฟล์ .env**: สร้างไฟล์ `.env` ที่รากโปรเจคและกำหนดค่าต่างๆ ตามต้องการ เช่น:
+
+   ```plaintext
+   DATABASE_HOST=localhost
+   DATABASE_PORT=3306
+   DATABASE_USER=root
+   DATABASE_PASSWORD=your_password
+   DATABASE_NAME=your_database
+   JWT_SECRET=your_jwt_secret
+   ```
+
+3. **ติดตั้งและกำหนดค่า Docker**
+   - ใช้ไฟล์ `docker-compose.yml` ดังต่อไปนี้:
+     ```yaml
+     version: '3.8'
+
+     services:
+       db:
+         image: mysql:8.0
+         container_name: mysql
+         environment:
+           MYSQL_ROOT_PASSWORD: boardTest
+           MYSQL_DATABASE: boardTest
+           MYSQL_USER: adminBoardTest
+           MYSQL_PASSWORD: BoardTest1234
+         ports:
+           - '3306:3306'
+         volumes:
+           - db_data:/var/lib/mysql
+         networks:
+           - my_network
+
+       phpmyadmin:
+         image: phpmyadmin/phpmyadmin
+         container_name: phpmyadmin
+         environment:
+           PMA_HOST: db
+           PMA_USER: adminBoardTest
+           PMA_PASSWORD: BoardTest1234
+         ports:
+           - '8080:80'
+         depends_on:
+           - db
+         networks:
+           - my_network
+
+     volumes:
+       db_data:
+
+     networks:
+       my_network:
+     ```
+   - รันคำสั่งต่อไปนี้เพื่อเริ่มต้น Docker:
+     ```bash
+     docker-compose up -d
+     ```
+
+
+4. **รันแอปพลิเคชัน**: ใช้คำสั่งด้านล่างเพื่อเริ่มแอปพลิเคชันในโหมดพัฒนา:
+
+   ```bash
+   npm run start:dev
+   ```
+
+## ภาพรวมการออกแบบของ Application Architecture
+
+Applicationนี้ ประกอบด้วย Controller, Service, และ Repository ที่ทำงานร่วมกันเพื่อให้บริการต่างๆ ของ Board App
+
+- **Post Module**: จัดการการCRUD ของโพสท์
+- **Comment Module**: จัดการการCRUD ของคอมเมนต์
+- **User Module**: จัดการ Create user และ login 
+- **Authentication Module**: จัดการการเข้าถึง API ด้วย JWT และทำ strategy สำหรับ Authorize user 
+
+## รายการ Libraries/Packages ที่ใช้พร้อมคำอธิบาย
+
+- **@nestjs/common**: ไลบรารีหลักของ NestJS สำหรับการสร้างโมดูล, คอนโทรลเลอร์ และบริการ
+- **@nestjs/config**: ช่วยในการจัดการการตั้งค่าจากไฟล์ `.env`
+- **@nestjs/typeorm**: ใช้ในการเชื่อมต่อกับฐานข้อมูลโดยใช้ TypeORM
+- **class-validator**: ใช้สำหรับการตรวจสอบข้อมูลที่ส่งเข้ามา
+- **jsonwebtoken**: ใช้สำหรับสร้างและตรวจสอบ JSON Web Tokens
+- **jest**: ไลบรารีสำหรับการทดสอบยูนิต
+
+## วิธีการรัน Unit Test
+
+คุณสามารถรันการทดสอบยูนิตได้โดยใช้คำสั่ง:
 
 ```bash
-$ npm install
+npm run test
 ```
 
-## Running the app
+หากต้องการรันการทดสอบในโหมดติดตามการเปลี่ยนแปลงให้ใช้คำสั่ง:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm run test:watch
 ```
 
-## Test
+หรือหากต้องการตรวจสอบความครอบคลุมของการทดสอบให้ใช้:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run test:cov
 ```
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
